@@ -20,13 +20,13 @@ RenderSettings:
   m_FogDensity: 0.01
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
-  m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
+  m_AmbientSkyColor: {r: 1, g: 1, b: 1, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
   m_AmbientIntensity: 1
-  m_AmbientMode: 0
-  m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 2100000, guid: 96569b73564675b46af2ed8749e0caad, type: 2}
+  m_AmbientMode: 3
+  m_SubtractiveShadowColor: {r: 0.24528301, g: 0.24528301, b: 0.24528301, a: 1}
+  m_SkyboxMaterial: {fileID: 0}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.07040711, g: 0.07739615, b: 0.10197485, a: 1}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -123,63 +123,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1001 &582221120
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 1601323363808860, guid: 048827c76e2f2b04f852ae21e2dee617, type: 3}
-      propertyPath: m_Name
-      value: StoneFloor01
-      objectReference: {fileID: 0}
-    - target: {fileID: 4419766972878916, guid: 048827c76e2f2b04f852ae21e2dee617, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 69.96316
-      objectReference: {fileID: 0}
-    - target: {fileID: 4419766972878916, guid: 048827c76e2f2b04f852ae21e2dee617, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 1.366
-      objectReference: {fileID: 0}
-    - target: {fileID: 4419766972878916, guid: 048827c76e2f2b04f852ae21e2dee617, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -79.34917
-      objectReference: {fileID: 0}
-    - target: {fileID: 4419766972878916, guid: 048827c76e2f2b04f852ae21e2dee617, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4419766972878916, guid: 048827c76e2f2b04f852ae21e2dee617, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4419766972878916, guid: 048827c76e2f2b04f852ae21e2dee617, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4419766972878916, guid: 048827c76e2f2b04f852ae21e2dee617, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4419766972878916, guid: 048827c76e2f2b04f852ae21e2dee617, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4419766972878916, guid: 048827c76e2f2b04f852ae21e2dee617, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4419766972878916, guid: 048827c76e2f2b04f852ae21e2dee617, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 048827c76e2f2b04f852ae21e2dee617, type: 3}
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -380,7 +323,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4848275991718962, guid: 0ddea81a21def2441b61569e0a44ca14, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 70.17985
+      value: 62.74
       objectReference: {fileID: 0}
     - target: {fileID: 4848275991718962, guid: 0ddea81a21def2441b61569e0a44ca14, type: 3}
       propertyPath: m_LocalPosition.y
@@ -388,7 +331,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4848275991718962, guid: 0ddea81a21def2441b61569e0a44ca14, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -78.267
+      value: -79.06
       objectReference: {fileID: 0}
     - target: {fileID: 4848275991718962, guid: 0ddea81a21def2441b61569e0a44ca14, type: 3}
       propertyPath: m_LocalRotation.w
@@ -429,5 +372,4 @@ SceneRoots:
   m_Roots:
   - {fileID: 963194228}
   - {fileID: 705507995}
-  - {fileID: 582221120}
   - {fileID: 1522247568}
