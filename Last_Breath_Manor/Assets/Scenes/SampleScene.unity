@@ -20,7 +20,7 @@ RenderSettings:
   m_FogDensity: 0.01
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
-  m_AmbientSkyColor: {r: 0.05882353, g: 0.05882353, b: 0.05882353, a: 1}
+  m_AmbientSkyColor: {r: 0.015686275, g: 0.015686275, b: 0.015686275, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
   m_AmbientIntensity: 1
@@ -638,6 +638,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   reachRange: 1.8
+  Flashlight: {fileID: 0}
 --- !u!4 &1233726732 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4848275991718962, guid: 0ddea81a21def2441b61569e0a44ca14, type: 3}
@@ -1031,6 +1032,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Flashlight
       objectReference: {fileID: 0}
+    - target: {fileID: 1147965471979518, guid: 0ddea81a21def2441b61569e0a44ca14, type: 3}
+      propertyPath: m_TagString
+      value: Flashlight
+      objectReference: {fileID: 0}
+    - target: {fileID: 1226127016364396, guid: 0ddea81a21def2441b61569e0a44ca14, type: 3}
+      propertyPath: m_TagString
+      value: Untagged
+      objectReference: {fileID: 0}
     - target: {fileID: 4848275991718962, guid: 0ddea81a21def2441b61569e0a44ca14, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.504101
@@ -1077,7 +1086,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 108598554077249260, guid: 0ddea81a21def2441b61569e0a44ca14, type: 3}
       propertyPath: m_Range
-      value: 4
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 108598554077249260, guid: 0ddea81a21def2441b61569e0a44ca14, type: 3}
       propertyPath: m_DrawHalo
@@ -1085,7 +1094,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 108598554077249260, guid: 0ddea81a21def2441b61569e0a44ca14, type: 3}
       propertyPath: m_Intensity
-      value: 3
+      value: 1.21
+      objectReference: {fileID: 0}
+    - target: {fileID: 108598554077249260, guid: 0ddea81a21def2441b61569e0a44ca14, type: 3}
+      propertyPath: m_SpotAngle
+      value: 33
+      objectReference: {fileID: 0}
+    - target: {fileID: 108598554077249260, guid: 0ddea81a21def2441b61569e0a44ca14, type: 3}
+      propertyPath: m_InnerSpotAngle
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
