@@ -3,9 +3,10 @@ using UnityEngine;
 
 public class DollFollow : MonoBehaviour
 {
+
+    private AudioSource jumpScareAudio;
     [SerializeField] private GameObject Doll;
     private GameObject camera;
-
     public float timedEventInterval = 30.0f;
     public float dollDisplayDuration = 5.0f;
     private Rigidbody dollRigidbody;
@@ -17,6 +18,8 @@ public class DollFollow : MonoBehaviour
 
     void Start()
     {
+        jumpScareAudio = GetComponent<AudioSource>();
+
         camera = Camera.main.gameObject;
 
         if (camera == null)
@@ -78,40 +81,47 @@ public class DollFollow : MonoBehaviour
     }
 
     private IEnumerator ShowDollTemporarily()
+{
+    dollIsVisible = true;
+
+    // Show the doll in front of the player
+    Vector3 inFront = camera.transform.position + camera.transform.forward * 1.5f;
+    inFront.y = 0.121f;
+    Doll.transform.position = inFront;
+
+    Vector3 dollRotation = Doll.transform.rotation.eulerAngles;
+    dollRotation.y = camera.transform.eulerAngles.y + 180;
+    Doll.transform.rotation = Quaternion.Euler(dollRotation);
+
+    // Play jumpscare audio
+    if (jumpScareAudio != null && !jumpScareAudio.isPlaying)
     {
-        if (Doll == null || camera == null)
-        {
-            Debug.LogWarning("Doll or Camera is null");
-            yield break;
-        }
-
-        dollIsVisible = true;
-
-        // Show the doll in front of the player
-        Vector3 inFront = camera.transform.position + camera.transform.forward * 1.5f;
-        inFront.y = 0.121f;
-        Doll.transform.position = inFront;
-
-        Vector3 dollRotation = Doll.transform.rotation.eulerAngles;
-        dollRotation.y = camera.transform.eulerAngles.y + 180;
-        Doll.transform.rotation = Quaternion.Euler(dollRotation);
-
-        // Wait for the doll display duration
-        yield return new WaitForSeconds(dollDisplayDuration);
-
-        // Hide the doll again
-        Doll.transform.position = new Vector3(0, -1000, 0);
-        
-        if (dollRigidbody != null)
-        {
-            FreezeDollRigidbody();
-        }
-
-        dollIsVisible = false;
-
-        // Reset timer after the doll disappears
-        timer = timedEventInterval; 
+        jumpScareAudio.Play();
     }
+
+    // Wait for the doll display duration
+    yield return new WaitForSeconds(dollDisplayDuration);
+
+    // Hide the doll again
+    Doll.transform.position = new Vector3(0, -1000, 0);
+
+    // Stop jumpscare audio
+    if (jumpScareAudio != null && jumpScareAudio.isPlaying)
+    {
+        jumpScareAudio.Stop();
+    }
+
+    if (dollRigidbody != null)
+    {
+        FreezeDollRigidbody();
+    }
+
+    dollIsVisible = false;
+
+    // Reset timer after the doll disappears
+    timer = timedEventInterval; 
+}
+
 
     private void FreezeDollRigidbody()
     {

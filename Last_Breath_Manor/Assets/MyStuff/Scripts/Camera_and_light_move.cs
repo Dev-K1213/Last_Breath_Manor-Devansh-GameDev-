@@ -6,29 +6,46 @@ using UnityEngine.EventSystems;
 
 public class CharacterMovement : MonoBehaviour
 {
-
     CharacterController characterController;
-
     public float moveSpeed = 5f;
     private Vector3 moveDirection;
-    // Start is called before the first frame update
+
+    // Add reference to AudioSource
+    private AudioSource footstepAudio;
+
     void Start()
     {
-        characterController = GetComponent<CharacterController>();    
+        characterController = GetComponent<CharacterController>();
+        footstepAudio = GetComponent<AudioSource>();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        
-        moveDirection.Normalize();
-        moveDirection.y = -1f;  
+        moveDirection.y = -1f;
 
+        
         characterController.Move(moveDirection * moveSpeed * Time.deltaTime);
+
+        Vector3 horizontalVelocity = new Vector3(moveDirection.x, 0, moveDirection.z);
+        bool isMoving = horizontalVelocity.magnitude > 0.1f;
+
+        // Play or stop footstep sound
+        if (isMoving)
+        {
+            if (!footstepAudio.isPlaying)
+            {
+                footstepAudio.loop = true;
+                footstepAudio.Play();
+            }
+        }
+        else
+        {
+            footstepAudio.Stop();
+        }
     }
 
-    public void AddMoveInput(float forwardInput, float rightInput){
-
+    public void AddMoveInput(float forwardInput, float rightInput)
+    {
         Vector3 forward = Camera.main.transform.forward;
         Vector3 right = Camera.main.transform.right;
 
