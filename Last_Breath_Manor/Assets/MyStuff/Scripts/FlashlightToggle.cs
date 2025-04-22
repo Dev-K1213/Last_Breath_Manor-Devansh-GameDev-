@@ -9,10 +9,10 @@ public class FlashlightToggle : MonoBehaviour
 
     public bool canToggle = true;
 
-    // Use this for initialization
+    
     void Start()
     {
-        lightGO.SetActive(false); // start with flashlight off
+        lightGO.SetActive(true); // start with flashlight on
         flashlightIsOn = false;
     }
 

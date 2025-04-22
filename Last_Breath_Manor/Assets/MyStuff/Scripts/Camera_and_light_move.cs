@@ -53,7 +53,7 @@ public class CharacterMovement : MonoBehaviour
     }
     else
     {
-        // Still apply gravity so we don't float or fall through
+        // Still apply gravity so no falling
         characterController.Move(Vector3.down * Time.deltaTime);
     }
 }
