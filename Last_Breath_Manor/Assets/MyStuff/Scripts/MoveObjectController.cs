@@ -4,7 +4,7 @@ using System.Collections;
 public class MoveObjectController : MonoBehaviour 
 {
 	public float reachRange = 1.8f;			
-	public GameObject Flashlight; // Reference to the flashlight GameObject
+	public GameObject Flashlight; 
 
 	private Animator anim;
 	private Camera fpsCam;

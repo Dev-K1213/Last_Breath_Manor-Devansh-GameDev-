@@ -1,39 +1,39 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Experimental.GlobalIllumination;
 
 public class FlashlightToggle : MonoBehaviour
 {
-    public GameObject lightGO; //light gameObject to work with
-    private bool isOn = false; //is flashlight on or off?
+    public GameObject lightGO; // light GameObject to control
+    public bool flashlightIsOn { get; private set; }
+
+    public bool canToggle = true;
 
     // Use this for initialization
     void Start()
     {
-        //set default off
-        lightGO.SetActive(isOn);
+        lightGO.SetActive(false); // start with flashlight off
+        flashlightIsOn = false;
     }
 
     // Update is called once per frame
     void Update()
     {
-        //toggle flashlight on key down
-        if (Input.GetKeyDown(KeyCode.X))
+        if (canToggle && Input.GetKeyDown(KeyCode.X))
         {
-            //toggle light
-            isOn = !isOn;
-            //turn light on
-            if (isOn)
-            {
-                lightGO.SetActive(true);
-            }
-            //turn light off
-            else
-            {
-                lightGO.SetActive(false);
-
-            }
+            ToggleFlashlight();
         }
+    }
+
+    public void ToggleFlashlight()
+    {
+        flashlightIsOn = !flashlightIsOn;
+        lightGO.SetActive(flashlightIsOn);
+    }
+
+    public void SetFlashlightState(bool state)
+    {
+        flashlightIsOn = state;
+        lightGO.SetActive(state);
     }
 }

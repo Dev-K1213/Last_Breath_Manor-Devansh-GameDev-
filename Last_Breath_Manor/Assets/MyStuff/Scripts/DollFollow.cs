@@ -16,8 +16,12 @@ public class DollFollow : MonoBehaviour
 
     private Coroutine timedCoroutine = null;
 
+   public FlashlightToggle toggleFlash; 
+   private int doorTriggerCount = 0;
+
     void Start()
     {
+        
         jumpScareAudio = GetComponent<AudioSource>();
 
         camera = Camera.main.gameObject;
@@ -36,7 +40,7 @@ public class DollFollow : MonoBehaviour
 
         dollRigidbody = Doll.GetComponent<Rigidbody>();
 
-        timedCoroutine = StartCoroutine(TimedDollCoroutine()); // Start the timed appearance coroutine
+        //timedCoroutine = StartCoroutine(TimedDollCoroutine()); // Start the timed appearance coroutine
 
         FreezeDollRigidbody();
     }
@@ -46,8 +50,17 @@ public class DollFollow : MonoBehaviour
     {
         if (other.CompareTag("Player") && !dollIsVisible)
         {
-            // Start the door-triggered appearance coroutine
+            doorTriggerCount++;
+            
+        
+        if (doorTriggerCount >= 10)
+        {
             StartCoroutine(TriggerDollCoroutine());
+            
+            doorTriggerCount = 0;
+
+        }
+
         }
     }
 
@@ -80,12 +93,38 @@ public class DollFollow : MonoBehaviour
         timerRunning = true;
     }
 
-    private IEnumerator ShowDollTemporarily()
+private IEnumerator ShowDollTemporarily()
 {
     dollIsVisible = true;
 
-    // Show the doll in front of the player
-    Vector3 inFront = camera.transform.position + camera.transform.forward * 1.5f;
+    if (toggleFlash == null)
+    {
+        toggleFlash = FindObjectOfType<FlashlightToggle>();
+    }
+
+    // 👉 Turn flashlight OFF and wait in darkness
+    bool wasFlashlightOn = toggleFlash.flashlightIsOn;
+    
+
+    if (wasFlashlightOn)
+    {
+        toggleFlash.SetFlashlightState(false);
+        toggleFlash.canToggle = false;
+        FindObjectOfType<CharacterMovement>().canMove = false;
+        
+
+    }
+
+    yield return new WaitForSeconds(0.7f); // dramatic pause...
+
+    // 👉 Start flickering flashlight
+    if (flashingCoroutine == null)
+    {
+        flashingCoroutine = StartCoroutine(FlashlightStrobe());
+    }
+
+    // 👉 Show doll in front of player
+    Vector3 inFront = camera.transform.position + camera.transform.forward * 1.2f;
     inFront.y = 0.121f;
     Doll.transform.position = inFront;
 
@@ -93,23 +132,36 @@ public class DollFollow : MonoBehaviour
     dollRotation.y = camera.transform.eulerAngles.y + 180;
     Doll.transform.rotation = Quaternion.Euler(dollRotation);
 
+    FindObjectOfType<CharacterMovement>().canMove = false;
+
     // Play jumpscare audio
     if (jumpScareAudio != null && !jumpScareAudio.isPlaying)
     {
         jumpScareAudio.Play();
     }
 
-    // Wait for the doll display duration
+    // Wait while doll is visible
     yield return new WaitForSeconds(dollDisplayDuration);
 
-    // Hide the doll again
+    // 👉 Hide doll again
     Doll.transform.position = new Vector3(0, -1000, 0);
 
-    // Stop jumpscare audio
     if (jumpScareAudio != null && jumpScareAudio.isPlaying)
     {
         jumpScareAudio.Stop();
     }
+
+    // 👉 Stop flicker and restore flashlight to original state
+    if (flashingCoroutine != null)
+    {
+        StopCoroutine(flashingCoroutine);
+        flashingCoroutine = null;
+    }
+
+    
+    toggleFlash.canToggle = true;
+    FindObjectOfType<CharacterMovement>().canMove = true;
+
 
     if (dollRigidbody != null)
     {
@@ -117,10 +169,20 @@ public class DollFollow : MonoBehaviour
     }
 
     dollIsVisible = false;
-
-    // Reset timer after the doll disappears
-    timer = timedEventInterval; 
+    timer = timedEventInterval;
 }
+
+
+private Coroutine flashingCoroutine;
+private IEnumerator FlashlightStrobe(float flashSpeed = 0.07f)
+{
+    while (true)
+    {
+        toggleFlash.lightGO.SetActive(!toggleFlash.lightGO.activeSelf);
+        yield return new WaitForSeconds(flashSpeed);
+    }
+}
+
 
 
     private void FreezeDollRigidbody()
