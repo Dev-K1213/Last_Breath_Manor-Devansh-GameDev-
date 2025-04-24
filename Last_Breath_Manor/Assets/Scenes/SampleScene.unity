@@ -359,7 +359,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Doll: {fileID: 1863186738}
   terror: {fileID: 8300000, guid: 258b6f19e5a9b2e42be0bd2eb04e776e, type: 3}
-  timedEventInterval: 30
+  timedEventInterval: 10
   dollDisplayDuration: 3.5
   toggleFlash: {fileID: 1266231772}
   rayrange: 4
@@ -1146,7 +1146,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Doll: {fileID: 1863186738}
   terror: {fileID: 8300000, guid: 258b6f19e5a9b2e42be0bd2eb04e776e, type: 3}
-  timedEventInterval: 30
+  timedEventInterval: 10
   dollDisplayDuration: 3.5
   toggleFlash: {fileID: 1266231772}
   rayrange: 4
@@ -1396,7 +1396,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Doll: {fileID: 1863186738}
   terror: {fileID: 8300000, guid: 258b6f19e5a9b2e42be0bd2eb04e776e, type: 3}
-  timedEventInterval: 30
+  timedEventInterval: 10
   dollDisplayDuration: 3.5
   toggleFlash: {fileID: 1266231772}
   rayrange: 4
@@ -1896,7 +1896,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Doll: {fileID: 1863186738}
   terror: {fileID: 8300000, guid: 258b6f19e5a9b2e42be0bd2eb04e776e, type: 3}
-  timedEventInterval: 30
+  timedEventInterval: 10
   dollDisplayDuration: 3.5
   toggleFlash: {fileID: 1266231772}
   rayrange: 4

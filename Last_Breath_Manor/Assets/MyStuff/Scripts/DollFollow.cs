@@ -47,7 +47,7 @@ public class DollFollow : MonoBehaviour
 
         dollRigidbody = Doll.GetComponent<Rigidbody>();
 
-        timedCoroutine = StartCoroutine(TimedDollCoroutine());
+        //timedCoroutine = StartCoroutine(TimedDollCoroutine());
 
         FreezeDollRigidbody();
     }
@@ -76,7 +76,7 @@ public class DollFollow : MonoBehaviour
         while (true)
         {
             yield return new WaitForSeconds(timer);
-            //yield return StartCoroutine(ShowDollBehindPlayer());
+            yield return StartCoroutine(ShowDollBehindPlayer());
 
         }
     }
@@ -191,12 +191,11 @@ private IEnumerator ShowDollBehindPlayer()
     {
         jumpScareAudio.volume = 0.2f;
         jumpScareAudio.PlayOneShot(terror);
-        
+        yield return new WaitForSeconds(terror.length);
         
     }
 
-    yield return new WaitForSeconds(terror.length);
-
+        yield return new WaitForSeconds(1f);
     // Doll appears behind the player
     Vector3 behindPlayer = camera.transform.position - camera.transform.forward * 1.5f;
     behindPlayer.y = 0.121f;
@@ -208,6 +207,8 @@ private IEnumerator ShowDollBehindPlayer()
 
     dollIsVisible = true;
 
+    FindObjectOfType<CharacterMovement>().canMove = false;
+
     // Wait for player to look at it
     while (true)
     {
@@ -217,6 +218,7 @@ private IEnumerator ShowDollBehindPlayer()
             {
                 yield return StartCoroutine(TriggerLookJumpscare());
                 timerRunning = true;
+                FindObjectOfType<CharacterMovement>().canMove = true;
                 yield break;
             }
         }
