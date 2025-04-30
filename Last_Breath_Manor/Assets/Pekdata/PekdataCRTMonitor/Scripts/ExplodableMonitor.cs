@@ -17,7 +17,8 @@ public class ExplodableMonitor : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        screenOff.SetActive(true);
+        screenOn.SetActive(false);
     }
 
     void OnCollisionEnter(Collision col){
