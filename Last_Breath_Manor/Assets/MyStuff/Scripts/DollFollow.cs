@@ -10,8 +10,8 @@ public class DollFollow : MonoBehaviour
     [SerializeField] private AudioClip terror;
 
     private GameObject camera;
-    public float timedEventInterval = 30.0f;
-    public float dollDisplayDuration = 5.0f;
+    public float timedEventInterval;
+    public float dollDisplayDuration;
     private Rigidbody dollRigidbody;
     private float timer;
     private bool dollIsVisible = false;
@@ -185,7 +185,7 @@ private IEnumerator ShowDollBehindPlayer()
 {
     timerRunning = false;
     
-
+    /*
     //wait untill sound finish
     if (terror != null && jumpScareAudio != null)
     {
@@ -195,7 +195,7 @@ private IEnumerator ShowDollBehindPlayer()
         
     }
 
-        yield return new WaitForSeconds(1f);
+      */  yield return new WaitForSeconds(1f);
     // Doll appears behind the player
     Vector3 behindPlayer = camera.transform.position - camera.transform.forward * 1.5f;
     behindPlayer.y = 0.121f;
@@ -216,6 +216,10 @@ private IEnumerator ShowDollBehindPlayer()
         {
             if (light.collider.gameObject == Doll)
             {
+                    if (jumpScareAudio != null && !jumpScareAudio.isPlaying)
+                        {
+                            jumpScareAudio.Play();
+                        }
                 yield return StartCoroutine(TriggerLookJumpscare());
                 timerRunning = true;
                 FindObjectOfType<CharacterMovement>().canMove = true;
@@ -253,10 +257,7 @@ private IEnumerator TriggerLookJumpscare()
         flashingCoroutine = StartCoroutine(FlashlightStrobe());
     }
 
-    if (jumpScareAudio != null && !jumpScareAudio.isPlaying)
-    {
-        jumpScareAudio.Play();
-    }
+
 
     yield return new WaitForSeconds(dollDisplayDuration);
 

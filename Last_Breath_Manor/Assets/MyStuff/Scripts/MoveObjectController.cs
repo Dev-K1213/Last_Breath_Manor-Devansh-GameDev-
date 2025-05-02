@@ -62,10 +62,12 @@ public class MoveObjectController : MonoBehaviour
 
     void Update()
     {
-        if (!playerEntered) return;
+       if (!playerEntered) return;
 
         
-        Vector3 rayOrigin = Flashlight.transform.position;
+        Vector3 rayOrigin = fpsCam.transform.position; 
+
+
         
 
         RaycastHit hit;
@@ -75,6 +77,8 @@ public class MoveObjectController : MonoBehaviour
         if (Physics.Raycast(rayOrigin, fpsCam.transform.forward, out hit, reachRange, rayLayerMask))
         {
             GameObject target = hit.collider.gameObject;
+            
+            
 
             // Handle drawers/doors
             MoveableObject moveableObject = null;
@@ -97,7 +101,7 @@ public class MoveObjectController : MonoBehaviour
                 showInteractMsg = false;
             }
 
-Debug.Log("Hit object: " + target.name + " Tag: " + target.tag);
+            Debug.Log("Hit object: " + target.name + " Tag: " + target.tag);
 
             // Handle item pickup
             if (target.CompareTag("FloppyYellow") || target.CompareTag("FloppyRed") || target.CompareTag("Key") ||
@@ -106,11 +110,13 @@ Debug.Log("Hit object: " + target.name + " Tag: " + target.tag);
                 showPickupMsg = true;
                 pickupMsg = "Press E to pick up";
 
+
                 if (Input.GetKeyDown(KeyCode.E))
                 {
                     string tag = target.tag;
                     inventory.CollectItem(tag);
                     Destroy(target);
+
 
                     if (tag == "FloppyYellow")
                         StartCoroutine(SpawnRedFloppy());
@@ -122,8 +128,8 @@ Debug.Log("Hit object: " + target.name + " Tag: " + target.tag);
                 pickupMsg = "Press E to view timer";
                 if (Input.GetKeyDown(KeyCode.E))
                 {
-                    // Replace with your timer display logic
-                    //ComputerScreen.Instance.ShowTimer();
+                   
+                    //Timer code
                 }
             }
             else if (target.CompareTag("Computer") && inventory.HasItem("FloppyRed"))
@@ -132,7 +138,7 @@ Debug.Log("Hit object: " + target.name + " Tag: " + target.tag);
                 pickupMsg = "Press E to destroy computer";
                 if (Input.GetKeyDown(KeyCode.E))
                 {
-                    
+                    //destroy code
                 }
             }
             else
