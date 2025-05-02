@@ -1,185 +1,218 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
-public class MoveObjectController : MonoBehaviour 
+public class MoveObjectController : MonoBehaviour
 {
-	public float reachRange = 1.8f;			
-	public GameObject Flashlight; 
+    public float reachRange = 1.8f;
+    public GameObject Flashlight;
 
-	private Animator anim;
-	private Camera fpsCam;
-	private GameObject player;
+    private Animator anim;
+    private Camera fpsCam;
+    private GameObject player;
 
-	private const string animBoolName = "isOpen_Obj_";
+    private const string animBoolName = "isOpen_Obj_";
 
-	private bool playerEntered;
-	private bool showInteractMsg;
-	private GUIStyle guiStyle;
-	private string msg;
+    private bool playerEntered;
+    private bool showInteractMsg;
+    private bool showPickupMsg;
+    private string msg;
+    private string pickupMsg;
 
-	private int rayLayerMask; 
+    private GUIStyle guiStyle;
+    private GUIStyle pickupStyle;
 
+    private int rayLayerMask;
+    private InventoryManager inventory;
 
-	void Start()
-	{
-		//Initialize moveDrawController if script is enabled.
-		player = GameObject.FindGameObjectWithTag("Player");
-		Flashlight = GameObject.FindGameObjectWithTag("Flashlight");
+    void Start()
+    {
+        player = GameObject.FindGameObjectWithTag("Player");
+        Flashlight = GameObject.FindGameObjectWithTag("Flashlight");
+        fpsCam = Camera.main;
 
-		fpsCam = Camera.main;
-		if (fpsCam == null)	//a reference to Camera is required for rayasts
-		{
-			Debug.LogError("A camera tagged 'MainCamera' is missing.");
-		}
+        if (fpsCam == null)
+            Debug.LogError("A camera tagged 'MainCamera' is missing.");
 
-		//create AnimatorOverrideController to re-use animationController for sliding draws.
-		anim = GetComponent<Animator>(); 
-		anim.enabled = false;  //disable animation states by default.  
+        anim = GetComponent<Animator>();
+        anim.enabled = false;
 
-		//the layer used to mask raycast for interactable objects only
-		LayerMask iRayLM = LayerMask.NameToLayer("InteractRaycast");
-		rayLayerMask = 1 << iRayLM.value;  
+        LayerMask iRayLM = LayerMask.NameToLayer("InteractRaycast");
+        rayLayerMask = 1 << iRayLM.value;
 
-		//setup GUI style settings for user prompts
-		setupGui();
+        setupGui();
+        inventory = InventoryManager.Instance;
+    }
 
-	}
-		
-	void OnTriggerEnter(Collider other)
-	{		
-		if (other.gameObject == player)		//player has collided with trigger
-		{			
-			playerEntered = true;
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject == player)
+            playerEntered = true;
+    }
 
-		}
-	}
+    void OnTriggerExit(Collider other)
+    {
+        if (other.gameObject == player)
+        {
+            playerEntered = false;
+            showInteractMsg = false;
+            showPickupMsg = false;
+        }
+    }
 
-	void OnTriggerExit(Collider other)
-	{		
-		if (other.gameObject == player)		//player has exited trigger
-		{			
-			playerEntered = false;
-			//hide interact message as player may not have been looking at object when they left
-			showInteractMsg = false;		
-		}
-	}
+    void Update()
+    {
+        if (!playerEntered) return;
 
+        
+        Vector3 rayOrigin = Flashlight.transform.position;
+        
 
+        RaycastHit hit;
 
-	void Update()
-	{		
-		if (playerEntered)
-		{	
+        
 
-			
-			Vector3 FlashlightPos = Flashlight.transform.position;
-            Vector3 rayOrigin = FlashlightPos + new Vector3(0, 0, 0);  //Origin at Flashlight
-            RaycastHit hit;
+        if (Physics.Raycast(rayOrigin, fpsCam.transform.forward, out hit, reachRange, rayLayerMask))
+        {
+            GameObject target = hit.collider.gameObject;
 
+            // Handle drawers/doors
+            MoveableObject moveableObject = null;
+            if (isEqualToParent(hit.collider, out moveableObject))
+            {
+                showInteractMsg = true;
+                string animBoolNameNum = animBoolName + moveableObject.objectNumber.ToString();
+                bool isOpen = anim.GetBool(animBoolNameNum);
+                msg = getGuiMsg(isOpen);
 
-			//if raycast hits a collider on the rayLayerMask
-			if (Physics.Raycast(rayOrigin,fpsCam.transform.forward, out hit,reachRange,rayLayerMask))
-			{
-				MoveableObject moveableObject = null;
-				//is the object of the collider player is looking at the same as me?
-				if (!isEqualToParent(hit.collider, out moveableObject))
-				{	//it's not so return;
-					return;
-				}	 
-					
-				if (moveableObject != null)		//hit object must have MoveableDraw script attached
-				{
-					showInteractMsg = true;
-					string animBoolNameNum = animBoolName + moveableObject.objectNumber.ToString();
+                if (Input.GetButtonDown("Fire1"))
+                {
+                    anim.enabled = true;
+                    anim.SetBool(animBoolNameNum, !isOpen);
+                    msg = getGuiMsg(!isOpen);
+                }
+            }
+            else
+            {
+                showInteractMsg = false;
+            }
 
-					bool isOpen = anim.GetBool(animBoolNameNum);	//need current state for message.
-					msg = getGuiMsg(isOpen);
+Debug.Log("Hit object: " + target.name + " Tag: " + target.tag);
 
-					if (Input.GetButtonDown("Fire1"))
-					{
-						anim.enabled = true;
-						anim.SetBool(animBoolNameNum,!isOpen);
-						msg = getGuiMsg(!isOpen);
-					}
+            // Handle item pickup
+            if (target.CompareTag("FloppyYellow") || target.CompareTag("FloppyRed") || target.CompareTag("Key") ||
+                target.CompareTag("Medkit") || target.CompareTag("Bottle"))
+            {
+                showPickupMsg = true;
+                pickupMsg = "Press E to pick up";
 
-				}
-			}
-			else
-			{
-				showInteractMsg = false;
-			}
-		}
+                if (Input.GetKeyDown(KeyCode.E))
+                {
+                    string tag = target.tag;
+                    inventory.CollectItem(tag);
+                    Destroy(target);
 
-	}
+                    if (tag == "FloppyYellow")
+                        StartCoroutine(SpawnRedFloppy());
+                }
+            }
+            else if (target.CompareTag("Computer") && inventory.HasItem("FloppyYellow"))
+            {
+                showPickupMsg = true;
+                pickupMsg = "Press E to view timer";
+                if (Input.GetKeyDown(KeyCode.E))
+                {
+                    // Replace with your timer display logic
+                    //ComputerScreen.Instance.ShowTimer();
+                }
+            }
+            else if (target.CompareTag("Computer") && inventory.HasItem("FloppyRed"))
+            {
+                showPickupMsg = true;
+                pickupMsg = "Press E to destroy computer";
+                if (Input.GetKeyDown(KeyCode.E))
+                {
+                    
+                }
+            }
+            else
+            {
+                showPickupMsg = false;
+            }
+        }
+        else
+        {
+            showInteractMsg = false;
+            showPickupMsg = false;
+        }
+    }
 
-	//is current gameObject equal to the gameObject of other.  check its parents
-	private bool isEqualToParent(Collider other, out MoveableObject draw)
-	{
-		draw = null;
-		bool rtnVal = false;
-		try
-		{
-			int maxWalk = 6;
-			draw = other.GetComponent<MoveableObject>();
+    private IEnumerator SpawnRedFloppy()
+    {
+        yield return new WaitForSeconds(20f);
+        GameObject redFloppy = GameObject.FindWithTag("FloppyRed");
+        if (redFloppy != null)
+            redFloppy.SetActive(true);
+    }
 
-			GameObject currentGO = other.gameObject;
-			for(int i=0;i<maxWalk;i++)
-			{
-				if (currentGO.Equals(this.gameObject))
-				{
-					rtnVal = true;	
-					if (draw== null) draw = currentGO.GetComponentInParent<MoveableObject>();
-					break;			//exit loop early.
-				}
+    private bool isEqualToParent(Collider other, out MoveableObject draw)
+    {
+        draw = null;
+        bool rtnVal = false;
+        try
+        {
+            int maxWalk = 6;
+            draw = other.GetComponent<MoveableObject>();
+            GameObject currentGO = other.gameObject;
 
-				//not equal to if reached this far in loop. move to parent if exists.
-				if (currentGO.transform.parent != null)		//is there a parent
-				{
-					currentGO = currentGO.transform.parent.gameObject;
-				}
-			}
-		} 
-		catch (System.Exception e)
-		{
-			Debug.Log(e.Message);
-		}
-			
-		return rtnVal;
+            for (int i = 0; i < maxWalk; i++)
+            {
+                if (currentGO.Equals(this.gameObject))
+                {
+                    rtnVal = true;
+                    if (draw == null) draw = currentGO.GetComponentInParent<MoveableObject>();
+                    break;
+                }
+                if (currentGO.transform.parent != null)
+                {
+                    currentGO = currentGO.transform.parent.gameObject;
+                }
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.Log(e.Message);
+        }
 
-	}
-		
+        return rtnVal;
+    }
 
+    private void setupGui()
+    {
+        guiStyle = new GUIStyle();
+        guiStyle.fontSize = 16;
+        guiStyle.fontStyle = FontStyle.Bold;
+        guiStyle.normal.textColor = Color.white;
 
-	//configure the style of the GUI
-	private void setupGui()
-	{
-		guiStyle = new GUIStyle();
-		guiStyle.fontSize = 16;
-		guiStyle.fontStyle = FontStyle.Bold;
-		guiStyle.normal.textColor = Color.white;
-		msg = "Left Click to Open";
-	}
+        pickupStyle = new GUIStyle(guiStyle);
+        pickupStyle.fontSize = 18;
+    }
 
-	private string getGuiMsg(bool isOpen)
-	{
-		string rtnVal;
-		if (isOpen)
-		{
-			rtnVal = "Left Click to Close";
-		}else
-		{
-			rtnVal = "Left Click to Open";
-		}
+    private string getGuiMsg(bool isOpen)
+    {
+        return isOpen ? "Left Click to Close" : "Left Click to Open";
+    }
 
-		return rtnVal;
-	}
+    void OnGUI()
+    {
+        if (showPickupMsg)
+        {
+            GUI.Label(new Rect(50, Screen.height - 100, 300, 40), pickupMsg, pickupStyle);
+        }
 
-	void OnGUI()
-	{
-		if (showInteractMsg)  //show on-screen prompts to user for guide.
-		{
-			GUI.Label(new Rect (50,Screen.height - 50,200,50), msg,guiStyle);
-		}
-	}		
-
+        if (showInteractMsg)
+        {
+            GUI.Label(new Rect(50, Screen.height - 60, 300, 40), msg, guiStyle);
+        }
+    }
 }

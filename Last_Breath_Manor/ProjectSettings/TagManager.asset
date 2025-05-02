@@ -6,6 +6,12 @@ TagManager:
   tags:
   - Flashlight
   - Doll
+  - Key
+  - Medkit
+  - FloppyYellow
+  - FloppyRed
+  - Computer
+  - Bottle
   layers:
   - Default
   - TransparentFX

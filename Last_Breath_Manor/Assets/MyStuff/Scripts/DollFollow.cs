@@ -47,7 +47,7 @@ public class DollFollow : MonoBehaviour
 
         dollRigidbody = Doll.GetComponent<Rigidbody>();
 
-        //timedCoroutine = StartCoroutine(TimedDollCoroutine());
+        timedCoroutine = StartCoroutine(TimedDollCoroutine());
 
         FreezeDollRigidbody();
     }
