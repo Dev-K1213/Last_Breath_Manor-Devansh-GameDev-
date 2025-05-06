@@ -4,11 +4,14 @@ using System.Collections.Generic;
 
 public class MoveObjectController : MonoBehaviour
 {
-    public float reachRange = 1.8f;
     public GameObject Flashlight;
 
     private Animator anim;
     private Camera fpsCam;
+
+    private int pickupLayerMask;
+    private int furnitureLayerMask;
+
     private GameObject player;
 
     private const string animBoolName = "isOpen_Obj_";
@@ -21,8 +24,6 @@ public class MoveObjectController : MonoBehaviour
 
     private GUIStyle guiStyle;
     private GUIStyle pickupStyle;
-
-    private int rayLayerMask;
     private InventoryManager inventory;
 
     void Start()
@@ -37,8 +38,9 @@ public class MoveObjectController : MonoBehaviour
         anim = GetComponent<Animator>();
         anim.enabled = false;
 
-        LayerMask iRayLM = LayerMask.NameToLayer("InteractRaycast");
-        rayLayerMask = 1 << iRayLM.value;
+        pickupLayerMask = 1 << LayerMask.NameToLayer("PickupLayer");
+        furnitureLayerMask = 1 << LayerMask.NameToLayer("FurnitureLayer");
+
 
         setupGui();
         inventory = InventoryManager.Instance;
@@ -60,98 +62,94 @@ public class MoveObjectController : MonoBehaviour
         }
     }
 
-    void Update()
+   void Update()
+{
+    if (!playerEntered) return;
+
+    Vector3 rayOrigin = fpsCam.transform.position;
+    RaycastHit pickupHit, furnitureHit;
+
+    bool foundPickup = Physics.Raycast(rayOrigin, fpsCam.transform.forward, out pickupHit, 3f, pickupLayerMask);
+    bool foundFurniture = Physics.Raycast(rayOrigin, fpsCam.transform.forward, out furnitureHit, 1.8f, furnitureLayerMask);
+
+    GameObject target = null;
+
+    // === PRIORITIZE PICKUP ===
+    if (foundPickup)
     {
-       if (!playerEntered) return;
+        target = pickupHit.collider.gameObject;
 
-        
-        Vector3 rayOrigin = fpsCam.transform.position; 
-
-
-        
-
-        RaycastHit hit;
-
-        
-
-        if (Physics.Raycast(rayOrigin, fpsCam.transform.forward, out hit, reachRange, rayLayerMask))
+        if (target.CompareTag("FloppyYellow") || target.CompareTag("FloppyRed") || target.CompareTag("Key") ||
+            target.CompareTag("Medkit") || target.CompareTag("Bottle"))
         {
-            GameObject target = hit.collider.gameObject;
-            
-            
+            showPickupMsg = true;
+            pickupMsg = "Press E to pick up";
 
-            // Handle drawers/doors
-            MoveableObject moveableObject = null;
-            if (isEqualToParent(hit.collider, out moveableObject))
+            if (Input.GetKeyDown(KeyCode.E))
             {
-                showInteractMsg = true;
-                string animBoolNameNum = animBoolName + moveableObject.objectNumber.ToString();
-                bool isOpen = anim.GetBool(animBoolNameNum);
-                msg = getGuiMsg(isOpen);
+                string tag = target.tag;
+                inventory.CollectItem(tag);
+                Destroy(target);
 
-                if (Input.GetButtonDown("Fire1"))
-                {
-                    anim.enabled = true;
-                    anim.SetBool(animBoolNameNum, !isOpen);
-                    msg = getGuiMsg(!isOpen);
-                }
+                if (tag == "FloppyYellow")
+                    StartCoroutine(SpawnRedFloppy());
             }
-            else
+        }
+        else if (target.CompareTag("Computer") && inventory.HasItem("FloppyYellow"))
+        {
+            showPickupMsg = true;
+            pickupMsg = "Press E to view timer";
+            if (Input.GetKeyDown(KeyCode.E))
             {
-                showInteractMsg = false;
+                // Timer code
             }
-
-            Debug.Log("Hit object: " + target.name + " Tag: " + target.tag);
-
-            // Handle item pickup
-            if (target.CompareTag("FloppyYellow") || target.CompareTag("FloppyRed") || target.CompareTag("Key") ||
-                target.CompareTag("Medkit") || target.CompareTag("Bottle"))
+        }
+        else if (target.CompareTag("Computer") && inventory.HasItem("FloppyRed"))
+        {
+            showPickupMsg = true;
+            pickupMsg = "Press E to destroy computer";
+            if (Input.GetKeyDown(KeyCode.E))
             {
-                showPickupMsg = true;
-                pickupMsg = "Press E to pick up";
-
-
-                if (Input.GetKeyDown(KeyCode.E))
-                {
-                    string tag = target.tag;
-                    inventory.CollectItem(tag);
-                    Destroy(target);
-
-
-                    if (tag == "FloppyYellow")
-                        StartCoroutine(SpawnRedFloppy());
-                }
+                // Destroy code
             }
-            else if (target.CompareTag("Computer") && inventory.HasItem("FloppyYellow"))
+        }
+    }
+    else
+    {
+        showPickupMsg = false;
+    }
+
+    // === Check Furniture Only if No Pickup ===
+    if (!foundPickup && foundFurniture)
+    {
+        GameObject furnitureTarget = furnitureHit.collider.gameObject;
+        MoveableObject moveableObject;
+        if (isEqualToParent(furnitureHit.collider, out moveableObject))
+        {
+            showInteractMsg = true;
+            string animBoolNameNum = animBoolName + moveableObject.objectNumber.ToString();
+            bool isOpen = anim.GetBool(animBoolNameNum);
+            msg = getGuiMsg(isOpen);
+
+            if (Input.GetButtonDown("Fire1"))
             {
-                showPickupMsg = true;
-                pickupMsg = "Press E to view timer";
-                if (Input.GetKeyDown(KeyCode.E))
-                {
-                   
-                    //Timer code
-                }
-            }
-            else if (target.CompareTag("Computer") && inventory.HasItem("FloppyRed"))
-            {
-                showPickupMsg = true;
-                pickupMsg = "Press E to destroy computer";
-                if (Input.GetKeyDown(KeyCode.E))
-                {
-                    //destroy code
-                }
-            }
-            else
-            {
-                showPickupMsg = false;
+                anim.enabled = true;
+                anim.SetBool(animBoolNameNum, !isOpen);
+                msg = getGuiMsg(!isOpen);
             }
         }
         else
         {
             showInteractMsg = false;
-            showPickupMsg = false;
         }
     }
+    else
+    {
+        showInteractMsg = false;
+    }
+}
+ 
+
 
     private IEnumerator SpawnRedFloppy()
     {
