@@ -70,7 +70,7 @@ public class MoveObjectController : MonoBehaviour
     RaycastHit pickupHit, furnitureHit;
 
     bool foundPickup = Physics.Raycast(rayOrigin, fpsCam.transform.forward, out pickupHit, 3f, pickupLayerMask);
-    bool foundFurniture = Physics.Raycast(rayOrigin, fpsCam.transform.forward, out furnitureHit, 1.8f, furnitureLayerMask);
+    bool foundFurniture = Physics.Raycast(rayOrigin, fpsCam.transform.forward, out furnitureHit, 3f, furnitureLayerMask);
 
     GameObject target = null;
 
@@ -79,8 +79,7 @@ public class MoveObjectController : MonoBehaviour
     {
         target = pickupHit.collider.gameObject;
 
-        if (target.CompareTag("FloppyYellow") || target.CompareTag("FloppyRed") || target.CompareTag("Key") ||
-            target.CompareTag("Medkit") || target.CompareTag("Bottle"))
+        if (target.CompareTag("Key") || target.CompareTag("Medkit") || target.CompareTag("Bottle") || target.CompareTag("Computer"))
         {
             showPickupMsg = true;
             pickupMsg = "Press E to pick up";
@@ -91,26 +90,6 @@ public class MoveObjectController : MonoBehaviour
                 inventory.CollectItem(tag);
                 Destroy(target);
 
-                if (tag == "FloppyYellow")
-                    StartCoroutine(SpawnRedFloppy());
-            }
-        }
-        else if (target.CompareTag("Computer") && inventory.HasItem("FloppyYellow"))
-        {
-            showPickupMsg = true;
-            pickupMsg = "Press E to view timer";
-            if (Input.GetKeyDown(KeyCode.E))
-            {
-                // Timer code
-            }
-        }
-        else if (target.CompareTag("Computer") && inventory.HasItem("FloppyRed"))
-        {
-            showPickupMsg = true;
-            pickupMsg = "Press E to destroy computer";
-            if (Input.GetKeyDown(KeyCode.E))
-            {
-                // Destroy code
             }
         }
     }

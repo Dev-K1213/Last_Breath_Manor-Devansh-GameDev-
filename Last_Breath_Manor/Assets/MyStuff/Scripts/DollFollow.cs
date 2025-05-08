@@ -10,6 +10,8 @@ public class DollFollow : MonoBehaviour
     [SerializeField] private AudioClip terror;
 
     private GameObject camera;
+    [SerializeField] private GameObject gameOverScreen;
+
     public float timedEventInterval;
     public float dollDisplayDuration;
     private Rigidbody dollRigidbody;
@@ -50,7 +52,65 @@ public class DollFollow : MonoBehaviour
         timedCoroutine = StartCoroutine(TimedDollCoroutine());
 
         FreezeDollRigidbody();
+
+        StartCoroutine(CheckBottlePickup());
+
     }
+
+    private IEnumerator CheckBottlePickup()
+{
+    yield return new WaitForSeconds(20f);
+
+    if (!InventoryManager.Instance.HasItem("Bottle"))
+    {
+        StartCoroutine(GameOverJumpscare());
+    }
+}
+
+private IEnumerator GameOverJumpscare()
+{
+    // Freeze player movement
+    FindObjectOfType<CharacterMovement>().canMove = false;
+
+    // Position doll in front of player
+    Vector3 inFront = camera.transform.position + camera.transform.forward * 1.2f;
+    inFront.y = 0.121f;
+    Doll.transform.position = inFront;
+
+    Vector3 dollRotation = Doll.transform.rotation.eulerAngles;
+    dollRotation.y = camera.transform.eulerAngles.y + 180;
+    Doll.transform.rotation = Quaternion.Euler(dollRotation);
+
+    // Play jumpscare sound
+    if (jumpScareAudio != null && terror != null)
+    {
+        jumpScareAudio.volume = 0.5f;
+        jumpScareAudio.PlayOneShot(terror);
+    }
+
+    // Optional: Flashlight off / effects
+    if (toggleFlash != null)
+    {
+        toggleFlash.SetFlashlightState(false);
+        toggleFlash.canToggle = false;
+    }
+
+    yield return new WaitForSeconds(2f); // Wait for dramatic pause
+
+    // Show game over UI
+    Time.timeScale = 0f; // Pause game
+    ShowGameOverScreen(); // We'll add this function next
+}
+
+private void ShowGameOverScreen()
+{
+    if (gameOverScreen != null)
+    {
+        gameOverScreen.SetActive(true);
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
+}
 
 
     private void OnTriggerEnter(Collider other)
