@@ -5,16 +5,19 @@ public class InteractableItem : MonoBehaviour
 {
     public string itemName;
     public ItemType itemType;
-    public bool isSpecial = false;
+    //public bool isSpecial = false;
 }
 
 
 public enum ItemType
 {
     Key,
-    FloppyDisk,
+    Book,
     Medkit,
     Bottle,
+    WindowCover,
+    Potion,
     Computer
+    
 }
 

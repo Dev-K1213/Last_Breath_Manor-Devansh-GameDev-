@@ -6,52 +6,62 @@ using UnityEngine.UI;
 
 public class StoryController : MonoBehaviour
 {
-    // Start is called before the first frame update
-
     public Text text;
-    float timer = 5f;
+    public GameObject previous;
+    public GameObject next;
+    public GameObject play;
 
-    int num = 0; 
+    private int num = 0;
 
     void Start()
     {
-        text.text = "You were out hiking in the woods and got lost and saw this cabin...";
+        UpdateStory();
     }
 
-    // Update is called once per frame
-    void Update()
+    public void nextText()
     {
-        timer -= Time.deltaTime;
-        if (timer <= 0.0f && num == 0){
-            nextText();
-            timer = 5f;
+        if (num < 3)
+        {
             num++;
-        }
-
-        if(timer <= 0.0f && num == 1){
-            nextText2();
-            timer = 5f;
-            num++;
-        }
-
-        if(timer <= 0.0f && num == 2){
-            nextText3();
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+            UpdateStory();
         }
     }
 
-    void nextText(){
-
-        text.text = "You were getting tired and hungry so you decided to enter...";
+    public void previousText()
+    {
+        if (num > 0)
+        {
+            num--;
+            UpdateStory();
+        }
     }
 
-    void nextText2(){
-
-        text.text = "The door closes behind you and locks and now you're trapped...";
+    public void playButton()
+    {
+        SceneManager.LoadScene("Main");
     }
 
-    void nextText3(){
+    void UpdateStory()
+    {
+        
+        switch (num)
+        {
+            case 0:
+                text.text = "You were out hiking in the woods and got lost and saw this cabin...";
+                break;
+            case 1:
+                text.text = "You were getting tired and hungry so you decided to enter...";
+                break;
+            case 2:
+                text.text = "The door closes behind you and locks and now you're trapped...";
+                break;
+            case 3:
+                text.text = "Now you must escape or DIE trying...";
+                break;
+        }
 
-        text.text = "Now you must escape or DIE trying...";
+        previous.SetActive(num > 0);
+        next.SetActive(num < 3);
+        play.SetActive(num == 3);
     }
 }

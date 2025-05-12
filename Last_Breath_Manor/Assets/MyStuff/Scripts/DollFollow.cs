@@ -1,32 +1,29 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using TMPro; // Needed for TextMeshPro
+
 
 public class DollFollow : MonoBehaviour
 {
 
     private AudioSource jumpScareAudio;
+    public TextMeshProUGUI countdownText;
     [SerializeField] private GameObject Doll;
-
-    [SerializeField] private AudioClip terror;
-
     private GameObject camera;
-    [SerializeField] private GameObject gameOverScreen;
-
     public float timedEventInterval;
     public float dollDisplayDuration;
     private Rigidbody dollRigidbody;
     private float timer;
     private bool dollIsVisible = false;
     private bool timerRunning = true;
-
     private Coroutine timedCoroutine = null;
+    public FlashlightToggle toggleFlash; 
+    private int doorTriggerCount = 0;
+    RaycastHit light;  
+    public float rayrange = 5f;
+    private int dollAppearanceCount = 0;
 
-   public FlashlightToggle toggleFlash; 
-   private int doorTriggerCount = 0;
-
-   RaycastHit light;
-
-   public float rayrange = 5f;
 
     void Start()
     {
@@ -55,19 +52,103 @@ public class DollFollow : MonoBehaviour
 
         StartCoroutine(CheckBottlePickup());
 
+
+    if (countdownText == null)
+    {
+        countdownText = (TextMeshProUGUI)(GameObject.Find("countdownText")?.GetComponent<TMP_Text>());
+        if (countdownText == null)
+        {
+            Debug.LogError("CountdownText not found in scene.");
+        }
     }
 
-    private IEnumerator CheckBottlePickup()
+
+
+    }
+
+   private IEnumerator CheckBottlePickup()
 {
-    yield return new WaitForSeconds(20f);
+    float countdown = 30f;
+
+    while (countdown > 0f)
+    {
+        // Hide countdown if bottle is collected
+        if (InventoryManager.Instance.HasItem("Bottle"))
+        {
+            if (countdownText != null)
+            {
+                countdownText.text = "";
+            }
+            yield break;
+        }
+
+        if (countdownText != null)
+        {
+            countdownText.text = "Your extremely thirsty. You have: " + Mathf.CeilToInt(countdown) + " seconds to find a water bottle or DIE!";
+        }
+
+        countdown -= Time.deltaTime;
+        yield return null;
+    }
+
+
+    if (countdownText != null)
+    {
+        countdownText.text = "";
+    }
 
     if (!InventoryManager.Instance.HasItem("Bottle"))
     {
-        StartCoroutine(GameOverJumpscare());
+        ShowGameOverScreen();
     }
 }
 
-private IEnumerator GameOverJumpscare()
+private IEnumerator MedkitCountdown()
+{
+    float countdown = 20f;
+    bool medkitUsed = false;
+
+    while (countdown > 0f)
+    {
+        if (InventoryManager.Instance.HasItem("Medkit"))
+        {
+            InventoryManager.Instance.UseItem("Medkit");
+            medkitUsed = true;
+
+            if (countdownText != null)
+            {
+                countdownText.text = "Medkit used!";
+                yield return new WaitForSeconds(2f); // Show message briefly
+                countdownText.text = "";
+            }
+
+            yield break; // Exit the coroutine early
+        }
+
+        if (countdownText != null)
+        {
+            countdownText.text = "You're bleeding. Use a medkit in: " + Mathf.CeilToInt(countdown) + " seconds or DIE!";
+        }
+
+        countdown -= Time.deltaTime;
+        yield return null;
+    }
+
+    // If medkit was not used
+    if (countdownText != null)
+    {
+        countdownText.text = "";
+    }
+
+    if (!medkitUsed)
+    {
+        ShowGameOverScreen();
+    }
+}
+
+
+public IEnumerator GameOverJumpscare()
+
 {
     // Freeze player movement
     FindObjectOfType<CharacterMovement>().canMove = false;
@@ -82,34 +163,48 @@ private IEnumerator GameOverJumpscare()
     Doll.transform.rotation = Quaternion.Euler(dollRotation);
 
     // Play jumpscare sound
-    if (jumpScareAudio != null && terror != null)
+    if (jumpScareAudio != null)
     {
         jumpScareAudio.volume = 0.5f;
-        jumpScareAudio.PlayOneShot(terror);
+        jumpScareAudio.Play();
     }
 
-    // Optional: Flashlight off / effects
-    if (toggleFlash != null)
+if (toggleFlash == null)
+    {
+        toggleFlash = FindObjectOfType<FlashlightToggle>();
+    }
+
+    // turn flashlight off
+    bool wasFlashlightOn = toggleFlash.flashlightIsOn;
+    
+
+    if (wasFlashlightOn)
     {
         toggleFlash.SetFlashlightState(false);
         toggleFlash.canToggle = false;
+        FindObjectOfType<CharacterMovement>().canMove = false;
+        
+
     }
 
-    yield return new WaitForSeconds(2f); // Wait for dramatic pause
+    yield return new WaitForSeconds(0.7f); //pause
+
+    //Start flickering flashlight
+    if (flashingCoroutine == null)
+    {
+        flashingCoroutine = StartCoroutine(FlashlightStrobe());
+    }
+
+    yield return new WaitForSeconds(2f); 
 
     // Show game over UI
     Time.timeScale = 0f; // Pause game
-    ShowGameOverScreen(); // We'll add this function next
+    ShowGameOverScreen(); 
 }
 
 private void ShowGameOverScreen()
 {
-    if (gameOverScreen != null)
-    {
-        gameOverScreen.SetActive(true);
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
-    }
+    SceneManager.LoadScene("Death");
 }
 
 
@@ -128,6 +223,11 @@ private void ShowGameOverScreen()
 
         }
 
+        if (other.gameObject.name == "SurvivedTrigger")
+        {
+            SceneManager.LoadScene("Survived");
+        }
+
         }
     }
 
@@ -136,7 +236,9 @@ private void ShowGameOverScreen()
         while (true)
         {
             yield return new WaitForSeconds(timer);
+            timer = timedEventInterval;
             yield return StartCoroutine(ShowDollBehindPlayer());
+            
 
         }
     }
@@ -231,6 +333,14 @@ private IEnumerator ShowDollTemporarily()
     toggleFlash.canToggle = true;
     FindObjectOfType<CharacterMovement>().canMove = true;
 
+    dollAppearanceCount++;
+
+    if (dollAppearanceCount % 2 == 0)
+    {
+    StartCoroutine(MedkitCountdown());
+    }
+
+
 
     if (dollRigidbody != null)
     {
@@ -244,18 +354,8 @@ private IEnumerator ShowDollTemporarily()
 private IEnumerator ShowDollBehindPlayer()
 {
     timerRunning = false;
-    
-    /*
-    //wait untill sound finish
-    if (terror != null && jumpScareAudio != null)
-    {
-        jumpScareAudio.volume = 0.2f;
-        jumpScareAudio.PlayOneShot(terror);
-        yield return new WaitForSeconds(terror.length);
-        
-    }
 
-      */  yield return new WaitForSeconds(1f);
+    yield return new WaitForSeconds(1f);
     // Doll appears behind the player
     Vector3 behindPlayer = camera.transform.position - camera.transform.forward * 1.5f;
     behindPlayer.y = 0.121f;
@@ -295,7 +395,10 @@ private IEnumerator ShowDollBehindPlayer()
 
 private IEnumerator TriggerLookJumpscare()
 {
-    //all same as other jumpscare
+    Debug.Log("TriggerLookJumpscare() started");
+
+    dollAppearanceCount++;
+    Debug.Log("Doll appearance count: " + dollAppearanceCount);
 
     if (toggleFlash == null)
         toggleFlash = FindObjectOfType<FlashlightToggle>();
@@ -317,9 +420,7 @@ private IEnumerator TriggerLookJumpscare()
         flashingCoroutine = StartCoroutine(FlashlightStrobe());
     }
 
-
-
-    yield return new WaitForSeconds(dollDisplayDuration);
+    yield return new WaitForSeconds(dollDisplayDuration - 1f);
 
     Doll.transform.position = new Vector3(0, -1000, 0);
 
@@ -340,6 +441,13 @@ private IEnumerator TriggerLookJumpscare()
     if (dollRigidbody != null)
     {
         FreezeDollRigidbody();
+    }
+
+    // Force medkit countdown every time, for testing
+    Debug.Log("Calling MedkitCountdown");
+    if (dollAppearanceCount % 2 == 0)
+    {
+    StartCoroutine(MedkitCountdown());
     }
 
     dollIsVisible = false;

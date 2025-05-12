@@ -1,8 +1,18 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
-public class MoveableObject : MonoBehaviour 
+public class MoveableObject : MonoBehaviour
 {
+    public int objectNumber;
 
-	public int objectNumber = 1;
+    public bool isLocked = false;
+
+    // Use multiple required keys
+    public List<string> requiredKeyTags = new List<string>();
+
+    public void Unlock()
+    {
+        isLocked = false;
+        Debug.Log($"{gameObject.name} unlocked.");
+    }
 }

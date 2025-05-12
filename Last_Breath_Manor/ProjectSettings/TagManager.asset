@@ -10,6 +10,15 @@ TagManager:
   - Medkit
   - Computer
   - Bottle
+  - WindowCover
+  - InitialBook
+  - RiddleBook
+  - InitialBookKey
+  - MoonBook
+  - PotionKey
+  - Potion
+  - DoorKey1
+  - DoorKey2
   layers:
   - Default
   - TransparentFX

@@ -1,6 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.UI;  // For UI components
+using TMPro;
+
+
 
 public class MoveObjectController : MonoBehaviour
 {
@@ -8,11 +12,26 @@ public class MoveObjectController : MonoBehaviour
 
     private Animator anim;
     private Camera fpsCam;
-
+    public GameObject potionKey; 
     private int pickupLayerMask;
     private int furnitureLayerMask;
-
     private GameObject player;
+    private string temporaryMsg = "";
+    private float msgTimer = 0f;
+    private bool riddleBookHasAppeared = false;
+
+    public GameObject riddleBook;
+    private float riddleBookTimer = 0f;
+    private bool riddleBookPending = false;
+
+    private float msgDuration = 3f; // show for 3 seconds
+    public GameObject windowCover;
+    public FlashlightToggle flashlightToggle;
+    private bool lastFlashlightState;
+
+    public GameObject moonBook;
+    public GameObject doorKey2;
+
 
     private const string animBoolName = "isOpen_Obj_";
 
@@ -26,25 +45,35 @@ public class MoveObjectController : MonoBehaviour
     private GUIStyle pickupStyle;
     private InventoryManager inventory;
 
-    void Start()
+
+
+void Start()
+{
+    player = GameObject.FindGameObjectWithTag("Player");
+    Flashlight = GameObject.FindGameObjectWithTag("Flashlight");
+    fpsCam = Camera.main;
+
+    if (fpsCam == null)
+        Debug.LogError("A camera tagged 'MainCamera' is missing.");
+
+    anim = GetComponent<Animator>();
+    anim.enabled = false;
+
+    pickupLayerMask = 1 << LayerMask.NameToLayer("PickupLayer");
+    furnitureLayerMask = 1 << LayerMask.NameToLayer("FurnitureLayer");
+
+    setupGui();
+    inventory = InventoryManager.Instance;
+
+
+    if (flashlightToggle != null)
     {
-        player = GameObject.FindGameObjectWithTag("Player");
-        Flashlight = GameObject.FindGameObjectWithTag("Flashlight");
-        fpsCam = Camera.main;
-
-        if (fpsCam == null)
-            Debug.LogError("A camera tagged 'MainCamera' is missing.");
-
-        anim = GetComponent<Animator>();
-        anim.enabled = false;
-
-        pickupLayerMask = 1 << LayerMask.NameToLayer("PickupLayer");
-        furnitureLayerMask = 1 << LayerMask.NameToLayer("FurnitureLayer");
-
-
-        setupGui();
-        inventory = InventoryManager.Instance;
+        lastFlashlightState = flashlightToggle.flashlightIsOn;
+        UpdateLightDependentObjects(lastFlashlightState);
     }
+
+
+}
 
     void OnTriggerEnter(Collider other)
     {
@@ -64,6 +93,61 @@ public class MoveObjectController : MonoBehaviour
 
    void Update()
 {
+
+if (msgTimer > 0)
+    {
+        msgTimer -= Time.deltaTime;
+        if (msgTimer <= 0)
+        {
+            temporaryMsg = "";
+        }
+    }
+        if (riddleBookPending)
+        {
+            riddleBookTimer -= Time.deltaTime;
+            if (riddleBookTimer <= 0f)
+            {
+                riddleBookPending = false;
+
+                if (riddleBook != null)
+                {
+                    riddleBook.SetActive(true);
+                    Debug.Log("RiddleBook appeared.");
+                    riddleBookHasAppeared = true;
+                }
+
+
+                if (windowCover != null)
+                {
+                    windowCover.tag = "WindowCover";  // Tag it dynamically
+                    Debug.Log("WindowCover tag set.");
+                }
+
+                if (moonBook != null)
+                {
+                    moonBook.SetActive(true);
+                    Debug.Log("MoonBook appeared.");
+                }
+
+                if (doorKey2 != null)
+                {
+                    doorKey2.SetActive(true);
+                    Debug.Log("DoorKey appeared.");
+                }
+            }
+
+        }
+
+        if (flashlightToggle != null)
+        {
+            bool currentFlashlightState = flashlightToggle.flashlightIsOn;
+            if (currentFlashlightState != lastFlashlightState)
+            {
+                UpdateLightDependentObjects(currentFlashlightState);
+                lastFlashlightState = currentFlashlightState;
+            }
+        }
+
     if (!playerEntered) return;
 
     Vector3 rayOrigin = fpsCam.transform.position;
@@ -76,27 +160,101 @@ public class MoveObjectController : MonoBehaviour
 
     // === PRIORITIZE PICKUP ===
     if (foundPickup)
-    {
-        target = pickupHit.collider.gameObject;
+{
+    GameObject pickupTarget = pickupHit.collider.gameObject;
 
-        if (target.CompareTag("Key") || target.CompareTag("Medkit") || target.CompareTag("Bottle") || target.CompareTag("Computer"))
+    // Check if furniture is blocking the pickup
+    if (Physics.Raycast(rayOrigin, fpsCam.transform.forward, out RaycastHit blockHit, pickupHit.distance, furnitureLayerMask))
+    {
+        // Something is in the way — likely a closed drawer
+        showPickupMsg = false;
+    }
+    else
+    {
+        if (pickupTarget.CompareTag("Key") || pickupTarget.CompareTag("Medkit") || pickupTarget.CompareTag("Bottle") || pickupTarget.CompareTag("InitialBook") 
+        || pickupTarget.CompareTag("InitialBookKey") || pickupTarget.CompareTag("Potion") || pickupTarget.CompareTag("MoonBook") || pickupTarget.CompareTag("WindowCover") 
+        || pickupTarget.CompareTag("DoorKey1") || pickupTarget.CompareTag("DoorKey2") || pickupTarget.CompareTag("PotionKey")|| pickupTarget.CompareTag("RiddleBook")
+)
         {
             showPickupMsg = true;
-            pickupMsg = "Press E to pick up";
+            if (pickupTarget.CompareTag("Potion"))
+            {
+                pickupMsg = "Press E to Drink potion";
+            }
+            else if (pickupTarget.CompareTag("InitialBook")){
+                pickupMsg = "Press E to Read Book";
+            }
+            else if (pickupTarget.CompareTag("Key")){
+                pickupMsg = "Press E to pick up Key";
+            }
+            else if (pickupTarget.CompareTag("Medkit")){
+                pickupMsg = "Press E to pick up MedKit";
+            }
+            else if (pickupTarget.CompareTag("Bottle")){
+                pickupMsg = "Press E to Drink Water";
+            }
+            else if (pickupTarget.CompareTag("InitialBookKey") || pickupTarget.CompareTag("PotionKey")){
+                pickupMsg = "Press E to pick up Special Key";
+            }
+            else if (pickupTarget.CompareTag("WindowCover")){
+                pickupMsg = "Press E to Remove Window Cover";
+            }
+            else if (pickupTarget.CompareTag("DoorKey1") || pickupTarget.CompareTag("DoorKey2")){
+                pickupMsg = "Press E to pick up Door Key";
+            }
+            else if (pickupTarget.CompareTag("RiddleBook"))
+            {
+                pickupMsg = "\"The key for light is to embrace the dark\"";
+            }
+
+            else
+            {
+                pickupMsg = "Press E to pick up";
+            }
+
 
             if (Input.GetKeyDown(KeyCode.E))
             {
-                string tag = target.tag;
+                string tag = pickupTarget.tag;
                 inventory.CollectItem(tag);
-                Destroy(target);
+                    if (tag == "DoorKey2")
+                    {
+                        Destroy(pickupTarget); // ✅ permanently remove DoorKey2 from the scene
+                        Debug.Log("DoorKey2 picked up and destroyed.");
+                    }
+                    else
+                    {
+                        pickupTarget.SetActive(false);
+                    }
+
+                if (tag == "InitialBook" && potionKey != null)
+                {
+                    potionKey.SetActive(true);
+                    Debug.Log("PotionKey activated!");
+
+                    ShowTemporaryMessage("A key has appeared somewhere", msgDuration);
+
+                }
+
+                if (tag == "Potion")
+                {
+                    ShowTemporaryMessage("Something will appear in a bit", msgDuration);
+
+                    riddleBookPending = true;
+                    riddleBookTimer = 20f; // 20 second countdown
+                }
+
 
             }
         }
     }
-    else
-    {
-        showPickupMsg = false;
-    }
+}
+else
+{
+    showPickupMsg = false;
+}
+
+
 
     // === Check Furniture Only if No Pickup ===
     if (!foundPickup && foundFurniture)
@@ -109,13 +267,55 @@ public class MoveObjectController : MonoBehaviour
             string animBoolNameNum = animBoolName + moveableObject.objectNumber.ToString();
             bool isOpen = anim.GetBool(animBoolNameNum);
             msg = getGuiMsg(isOpen);
-
-            if (Input.GetButtonDown("Fire1"))
+            if (moveableObject.isLocked)
             {
-                anim.enabled = true;
-                anim.SetBool(animBoolNameNum, !isOpen);
-                msg = getGuiMsg(!isOpen);
+                bool hasAllKeys = true;
+                foreach (string keyTag in moveableObject.requiredKeyTags)
+                {
+                    if (!inventory.HasItem(keyTag))
+                    {
+                        hasAllKeys = false;
+                        break;
+                    }
+                }
+
+                if (hasAllKeys)
+                {
+                    msg = $"Press Left Click to Unlock";
+
+                    if (Input.GetButtonDown("Fire1"))
+                    {
+                        moveableObject.Unlock();
+                        
+                        // Use (remove) all required keys
+                        foreach (string keyTag in moveableObject.requiredKeyTags)
+                        {
+                            inventory.UseItem(keyTag);
+                        }
+
+                        anim.enabled = true;
+                        anim.SetBool(animBoolNameNum, true);
+                        msg = getGuiMsg(true);
+                    }
+                }
+                else
+                {
+                    msg = $"Locked. You need {moveableObject.requiredKeyTags.Count} keys.";
+                }
             }
+
+                    else
+                    {
+                        msg = getGuiMsg(isOpen);
+
+                        if (Input.GetButtonDown("Fire1"))
+                        {
+                            anim.enabled = true;
+                            anim.SetBool(animBoolNameNum, !isOpen);
+                            msg = getGuiMsg(!isOpen);
+                        }
+                    }
+
         }
         else
         {
@@ -126,17 +326,30 @@ public class MoveObjectController : MonoBehaviour
     {
         showInteractMsg = false;
     }
+
+
+
+
+
 }
- 
+
+private void UpdateLightDependentObjects(bool flashlightIsOn)
+{
+    if (!riddleBookHasAppeared) return; // ⛔ Skip unless riddle book is active
+
+    if (moonBook != null)
+        moonBook.SetActive(flashlightIsOn); // MoonBook active only if flashlight is on
+
+    if (doorKey2 != null)
+        doorKey2.SetActive(!flashlightIsOn); // DoorKey2 active only if flashlight is off
+}
 
 
-    private IEnumerator SpawnRedFloppy()
-    {
-        yield return new WaitForSeconds(20f);
-        GameObject redFloppy = GameObject.FindWithTag("FloppyRed");
-        if (redFloppy != null)
-            redFloppy.SetActive(true);
-    }
+private void ShowTemporaryMessage(string message, float duration)
+{
+    temporaryMsg = message;
+    msgTimer = duration;
+}
 
     private bool isEqualToParent(Collider other, out MoveableObject draw)
     {
@@ -197,5 +410,11 @@ public class MoveObjectController : MonoBehaviour
         {
             GUI.Label(new Rect(50, Screen.height - 60, 300, 40), msg, guiStyle);
         }
+
+        if (!string.IsNullOrEmpty(temporaryMsg))
+        {
+            GUI.Label(new Rect(50, Screen.height - 140, 400, 40), temporaryMsg, pickupStyle);
+        }
+
     }
 }

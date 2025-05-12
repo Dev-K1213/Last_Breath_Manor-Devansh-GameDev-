@@ -12,7 +12,7 @@ public class InventoryManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); 
+            //DontDestroyOnLoad(gameObject); 
         }
         else
         {
@@ -28,6 +28,15 @@ public class InventoryManager : MonoBehaviour
             Debug.Log($"Collected item: {itemTag}");
         }
     }
+    public void UseItem(string itemTag)
+    {
+        if (collectedItems.Contains(itemTag))
+        {
+        collectedItems.Remove(itemTag);
+        Debug.Log($"Used item: {itemTag}");
+        }
+    }
+
 
     public bool HasItem(string itemTag)
     {

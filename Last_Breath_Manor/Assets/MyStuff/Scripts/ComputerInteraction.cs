@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 public class ComputerInteraction : MonoBehaviour
 {
-    public GameObject timerDisplayUI; // UI object to show the timer
+/*    public GameObject timerDisplayUI; // UI object to show the timer
     private float timeSinceStart;
     private bool showTimer = false;
 
@@ -35,4 +35,5 @@ public class ComputerInteraction : MonoBehaviour
         int seconds = Mathf.FloorToInt(time % 60f);
         return $"{minutes:00}:{seconds:00}";
     }
+    */
 }
