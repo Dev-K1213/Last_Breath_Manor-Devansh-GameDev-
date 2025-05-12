@@ -21,7 +21,7 @@ public class DollFollow : MonoBehaviour
     public FlashlightToggle toggleFlash; 
     private int doorTriggerCount = 0;
     RaycastHit light;  
-    public float rayrange = 5f;
+    public float rayrange = 100f;
     private int dollAppearanceCount = 0;
 
 
@@ -68,7 +68,7 @@ public class DollFollow : MonoBehaviour
 
    private IEnumerator CheckBottlePickup()
 {
-    float countdown = 30f;
+    float countdown = 60F;
 
     while (countdown > 0f)
     {
@@ -105,7 +105,7 @@ public class DollFollow : MonoBehaviour
 
 private IEnumerator MedkitCountdown()
 {
-    float countdown = 20f;
+    float countdown = 45f;
     bool medkitUsed = false;
 
     while (countdown > 0f)
@@ -372,7 +372,8 @@ private IEnumerator ShowDollBehindPlayer()
     // Wait for player to look at it
     while (true)
     {
-        if (Physics.Raycast(camera.transform.position, camera.transform.forward, out light, rayrange))
+        int dollLayerMask = LayerMask.GetMask("DollLayer");
+        if (Physics.Raycast(camera.transform.position, camera.transform.forward, out light, rayrange, dollLayerMask))
         {
             if (light.collider.gameObject == Doll)
             {
