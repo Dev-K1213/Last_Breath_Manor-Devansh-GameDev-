@@ -114,6 +114,7 @@ if (msgTimer > 0)
                     riddleBook.SetActive(true);
                     Debug.Log("RiddleBook appeared.");
                     riddleBookHasAppeared = true;
+                    flashlightToggle.SetFlashlightState(false);
                 }
 
 
@@ -131,9 +132,11 @@ if (msgTimer > 0)
 
                 if (doorKey2 != null)
                 {
-                    doorKey2.SetActive(true);
+                    doorKey2.SetActive(false);
                     Debug.Log("DoorKey appeared.");
                 }
+
+                
             }
 
         }
@@ -185,7 +188,7 @@ if (msgTimer > 0)
                 pickupMsg = "Press E to Read Book";
             }
             else if (pickupTarget.CompareTag("Key")){
-                pickupMsg = "Press E to pick up Key";
+                pickupMsg = "Press E to pick up Silver Key";
             }
             else if (pickupTarget.CompareTag("Medkit")){
                 pickupMsg = "Press E to pick up MedKit";
@@ -193,8 +196,11 @@ if (msgTimer > 0)
             else if (pickupTarget.CompareTag("Bottle")){
                 pickupMsg = "Press E to Drink Water";
             }
-            else if (pickupTarget.CompareTag("InitialBookKey") || pickupTarget.CompareTag("PotionKey")){
-                pickupMsg = "Press E to pick up Special Key";
+            else if (pickupTarget.CompareTag("InitialBookKey")){
+                pickupMsg = "Press E to pick up Green Key";
+            }
+            else if (pickupTarget.CompareTag("PotionKey")){
+                pickupMsg = "Press E to pick up Red Key";
             }
             else if (pickupTarget.CompareTag("WindowCover")){
                 pickupMsg = "Press E to Remove Window Cover";
@@ -300,7 +306,10 @@ else
                 }
                 else
                 {
-                    msg = $"Locked. You need {moveableObject.requiredKeyTags.Count} keys.";
+                    msg = string.IsNullOrEmpty(moveableObject.lockedMessage)
+                    ? $"Locked. You need {moveableObject.requiredKeyTags.Count} keys."
+                    : moveableObject.lockedMessage;
+
                 }
             }
 

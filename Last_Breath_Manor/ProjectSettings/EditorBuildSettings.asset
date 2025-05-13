@@ -20,4 +20,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/MyStuff/Scenes/Survived.unity
     guid: 9b0a5f84a6655d34cadda151a734cdb1
+  - enabled: 1
+    path: Assets/MyStuff/Scenes/Tutorial.unity
+    guid: 0fb2da6ef4baec148b2062fd1addb46e
   m_configObjects: {}

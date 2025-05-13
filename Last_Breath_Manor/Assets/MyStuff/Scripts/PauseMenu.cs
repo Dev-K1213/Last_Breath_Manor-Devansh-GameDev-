@@ -6,6 +6,9 @@ public class PauseMenu : MonoBehaviour
 {
     // Start is called before the first frame update
     public GameObject pauseMenu;
+    public GameObject Tutorial;
+    public GameObject hint;
+
     public bool isPaused;
     void Start()
     {
@@ -45,6 +48,21 @@ public class PauseMenu : MonoBehaviour
         
     }
 
+    public void ShowHint()
+    {
+
+        pauseMenu.SetActive(false);
+
+        CanvasGroup canvasGroup = hint.GetComponent<CanvasGroup>();
+        if (canvasGroup != null)
+        {
+            canvasGroup.alpha = 1f;
+            canvasGroup.interactable = true;
+            canvasGroup.blocksRaycasts = true;
+        }
+    }
+
+
     public void GoToMainMenu(){
 
         Time.timeScale = 1;
@@ -55,6 +73,49 @@ public class PauseMenu : MonoBehaviour
 
         Application.Quit();
     }
+
+    public void TutorialEnter()
+    {
+
+        pauseMenu.SetActive(false);
+
+        CanvasGroup canvasGroup = Tutorial.GetComponent<CanvasGroup>();
+        if (canvasGroup != null)
+        {
+            canvasGroup.alpha = 1f;
+            canvasGroup.interactable = true;
+            canvasGroup.blocksRaycasts = true; 
+        }
+    }
+
+    public void HideHint()
+    {
+        CanvasGroup canvasGroup = hint.GetComponent<CanvasGroup>();
+        if (canvasGroup != null)
+        {
+            canvasGroup.alpha = 0f;
+            canvasGroup.interactable = false;
+            canvasGroup.blocksRaycasts = false;
+        }
+        
+        pauseMenu.SetActive(true);
+    }
+
+
+    public void TutorialExit()
+    {
+        CanvasGroup canvasGroup = Tutorial.GetComponent<CanvasGroup>();
+        if (canvasGroup != null)
+        {
+            canvasGroup.alpha = 0f;
+            canvasGroup.interactable = false;
+            canvasGroup.blocksRaycasts = false;
+        }
+
+        pauseMenu.SetActive(true);
+    }
+
+
 
     public void Restart(){
 
