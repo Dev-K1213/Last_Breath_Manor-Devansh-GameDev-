@@ -9,7 +9,6 @@ using TMPro;
 public class MoveObjectController : MonoBehaviour
 {
     public GameObject Flashlight;
-
     private Animator anim;
     private Camera fpsCam;
     public GameObject potionKey; 
@@ -24,7 +23,7 @@ public class MoveObjectController : MonoBehaviour
     private float riddleBookTimer = 0f;
     private bool riddleBookPending = false;
 
-    private float msgDuration = 3f; // show for 3 seconds
+    private float msgDuration = 3f; 
     public GameObject windowCover;
     public FlashlightToggle flashlightToggle;
     private bool lastFlashlightState;
@@ -52,9 +51,6 @@ void Start()
     player = GameObject.FindGameObjectWithTag("Player");
     Flashlight = GameObject.FindGameObjectWithTag("Flashlight");
     fpsCam = Camera.main;
-
-    if (fpsCam == null)
-        Debug.LogError("A camera tagged 'MainCamera' is missing.");
 
     anim = GetComponent<Animator>();
     anim.enabled = false;
@@ -120,7 +116,7 @@ if (msgTimer > 0)
 
                 if (windowCover != null)
                 {
-                    windowCover.tag = "WindowCover";  // Tag it dynamically
+                    windowCover.tag = "WindowCover";  
                     Debug.Log("WindowCover tag set.");
                 }
 
@@ -161,7 +157,7 @@ if (msgTimer > 0)
 
     GameObject target = null;
 
-    // === PRIORITIZE PICKUP ===
+    //PRIORITIZE PICKUP
     if (foundPickup)
 {
     GameObject pickupTarget = pickupHit.collider.gameObject;
@@ -169,7 +165,7 @@ if (msgTimer > 0)
     // Check if furniture is blocking the pickup
     if (Physics.Raycast(rayOrigin, fpsCam.transform.forward, out RaycastHit blockHit, pickupHit.distance, furnitureLayerMask))
     {
-        // Something is in the way — likely a closed drawer
+        // Something in the way
         showPickupMsg = false;
     }
     else
@@ -225,7 +221,7 @@ if (msgTimer > 0)
                 inventory.CollectItem(tag);
                     if (tag == "DoorKey2")
                     {
-                        Destroy(pickupTarget); // ✅ permanently remove DoorKey2 from the scene
+                        Destroy(pickupTarget); //destroy dkey2
                         Debug.Log("DoorKey2 picked up and destroyed.");
                     }
                     else
@@ -247,7 +243,7 @@ if (msgTimer > 0)
                     ShowTemporaryMessage("Something will appear in a bit", msgDuration);
 
                     riddleBookPending = true;
-                    riddleBookTimer = 20f; // 20 second countdown
+                    riddleBookTimer = 20f; // 20 sec wait for book to appear
                 }
 
 
@@ -262,7 +258,7 @@ else
 
 
 
-    // === Check Furniture Only if No Pickup ===
+    //Check Furniture Only if No Pickup
     if (!foundPickup && foundFurniture)
     {
         GameObject furnitureTarget = furnitureHit.collider.gameObject;
@@ -293,7 +289,7 @@ else
                     {
                         moveableObject.Unlock();
                         
-                        // Use (remove) all required keys
+                        // Use all required keys
                         foreach (string keyTag in moveableObject.requiredKeyTags)
                         {
                             inventory.UseItem(keyTag);
@@ -344,13 +340,13 @@ else
 
 private void UpdateLightDependentObjects(bool flashlightIsOn)
 {
-    if (!riddleBookHasAppeared) return; // ⛔ Skip unless riddle book is active
+    if (!riddleBookHasAppeared) return; //Skip unless riddle book active
 
     if (moonBook != null)
-        moonBook.SetActive(flashlightIsOn); // MoonBook active only if flashlight is on
+        moonBook.SetActive(flashlightIsOn); //MoonBook active only if flashlight is on
 
     if (doorKey2 != null)
-        doorKey2.SetActive(!flashlightIsOn); // DoorKey2 active only if flashlight is off
+        doorKey2.SetActive(!flashlightIsOn); //DoorKey2 active only if flashlight is off
 }
 
 

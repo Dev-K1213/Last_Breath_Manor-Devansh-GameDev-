@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class FlashlightToggle : MonoBehaviour
 {
-    public GameObject lightGO; // light GameObject to control
+    public GameObject lightGO; 
     public bool flashlightIsOn { get; private set; }
 
     public bool canToggle = true;

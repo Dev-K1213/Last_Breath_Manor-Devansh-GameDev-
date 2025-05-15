@@ -5,7 +5,6 @@ using UnityEngine.SceneManagement;
 
 public class TutorialMenuMenuController : MonoBehaviour
 {
-    // Start is called before the first frame update
     public void BackToMenu(){
 
         SceneManager.LoadScene("Menu");

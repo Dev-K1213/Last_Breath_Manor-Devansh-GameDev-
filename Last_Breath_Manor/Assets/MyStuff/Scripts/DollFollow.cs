@@ -11,6 +11,8 @@ public class DollFollow : MonoBehaviour
     public TextMeshProUGUI countdownText;
     [SerializeField] private GameObject Doll;
     private GameObject camera;
+    private static DollFollow activeInstance;
+    private static bool isInitialized = false;
     public float timedEventInterval;
     public float dollDisplayDuration;
     private Rigidbody dollRigidbody;
@@ -27,16 +29,19 @@ public class DollFollow : MonoBehaviour
 
     void Start()
     {
-        
+        if (!isInitialized)
+        {
+        activeInstance = this;
+        isInitialized = true;
+
+
+        timer = timedEventInterval;
+        timedCoroutine = StartCoroutine(TimedDollCoroutine());
+        }
+
         jumpScareAudio = GetComponent<AudioSource>();
 
         camera = Camera.main.gameObject;
-
-        if (camera == null)
-            Debug.LogError("Main camera not found");
-
-        if (Doll == null)
-            Debug.LogError("Doll not found");
 
         // Hide the doll offscreen at start
         if (Doll != null)
@@ -46,8 +51,6 @@ public class DollFollow : MonoBehaviour
 
         dollRigidbody = Doll.GetComponent<Rigidbody>();
 
-        timedCoroutine = StartCoroutine(TimedDollCoroutine());
-
         FreezeDollRigidbody();
 
         StartCoroutine(CheckBottlePickup());
@@ -56,10 +59,6 @@ public class DollFollow : MonoBehaviour
     if (countdownText == null)
     {
         countdownText = (TextMeshProUGUI)(GameObject.Find("countdownText")?.GetComponent<TMP_Text>());
-        if (countdownText == null)
-        {
-            Debug.LogError("CountdownText not found in scene.");
-        }
     }
 
 
@@ -118,7 +117,7 @@ private IEnumerator MedkitCountdown()
             if (countdownText != null)
             {
                 countdownText.text = "Medkit used!";
-                yield return new WaitForSeconds(2f); // Show message briefly
+                yield return new WaitForSeconds(2f); // Show message
                 countdownText.text = "";
             }
 
@@ -197,7 +196,7 @@ if (toggleFlash == null)
 
     yield return new WaitForSeconds(2f); 
 
-    // Show game over UI
+    // Show game over scene
     Time.timeScale = 0f; // Pause game
     ShowGameOverScreen(); 
 }
@@ -215,14 +214,14 @@ private void ShowGameOverScreen()
             doorTriggerCount++;
             
         
-        if (doorTriggerCount >= 6)
+        if (doorTriggerCount >= 7)
         {
             StartCoroutine(TriggerDollCoroutine());
             
             doorTriggerCount = 0;
 
         }
-
+        //load survival scene
         if (other.gameObject.name == "SurvivedTrigger")
         {
             SceneManager.LoadScene("Survived");
@@ -235,20 +234,24 @@ private void ShowGameOverScreen()
     {
         while (true)
         {
+            if (activeInstance != this)
+            {
+                yield break; 
+            }
+
             yield return new WaitForSeconds(timer);
             timer = timedEventInterval;
             yield return StartCoroutine(ShowDollBehindPlayer());
-            
-
         }
     }
+
 
     private IEnumerator TriggerDollCoroutine()
     {
         if (dollIsVisible)
             yield break; // If the doll is already visible, do nothing
 
-        // Pause the timed event coroutine when the door is triggered
+        // Pause timed event coroutine when the door is triggered
         if (timedCoroutine != null)
         {
             StopCoroutine(timedCoroutine);
@@ -356,6 +359,7 @@ private IEnumerator ShowDollBehindPlayer()
     timerRunning = false;
 
     yield return new WaitForSeconds(1f);
+
     // Doll appears behind the player
     Vector3 behindPlayer = camera.transform.position - camera.transform.forward * 1.5f;
     behindPlayer.y = 0.121f;
@@ -444,7 +448,6 @@ private IEnumerator TriggerLookJumpscare()
         FreezeDollRigidbody();
     }
 
-    // Force medkit countdown every time, for testing
     Debug.Log("Calling MedkitCountdown");
     if (dollAppearanceCount % 2 == 0)
     {

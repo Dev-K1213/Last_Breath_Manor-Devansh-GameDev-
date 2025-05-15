@@ -34,10 +34,6 @@ public class ComputerTimer : MonoBehaviour
                 StartCoroutine(dollFollow.GameOverJumpscare());
 
             }
-            else
-            {
-                Debug.LogWarning("DollFollow reference is missing.");
-            }
         }
 
         int minutes = Mathf.FloorToInt(timer / 60);
@@ -56,10 +52,6 @@ public void ShowTimer()
         Debug.Log("Activating timer canvas");
         timerCanvas.SetActive(true);
         timerStarted = true;
-    }
-    else
-    {
-        Debug.LogWarning("Timer canvas is null or already active");
     }
 }
 

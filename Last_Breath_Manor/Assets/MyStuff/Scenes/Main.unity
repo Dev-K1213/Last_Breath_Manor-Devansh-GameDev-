@@ -1432,7 +1432,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   countdownText: {fileID: 157637168}
   Doll: {fileID: 1863186738}
-  timedEventInterval: 120
+  timedEventInterval: 60
   dollDisplayDuration: 3.5
   toggleFlash: {fileID: 1266231772}
   rayrange: 100
@@ -4228,7 +4228,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   countdownText: {fileID: 157637168}
   Doll: {fileID: 1863186738}
-  timedEventInterval: 120
+  timedEventInterval: 60
   dollDisplayDuration: 3.5
   toggleFlash: {fileID: 1266231772}
   rayrange: 100
@@ -5289,7 +5289,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   countdownText: {fileID: 157637168}
   Doll: {fileID: 1863186738}
-  timedEventInterval: 120
+  timedEventInterval: 60
   dollDisplayDuration: 3.5
   toggleFlash: {fileID: 1266231772}
   rayrange: 100
@@ -7735,7 +7735,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   countdownText: {fileID: 157637168}
   Doll: {fileID: 1863186738}
-  timedEventInterval: 120
+  timedEventInterval: 60
   dollDisplayDuration: 3.5
   toggleFlash: {fileID: 1266231772}
   rayrange: 100
@@ -8164,6 +8164,30 @@ PrefabInstance:
     - target: {fileID: 4000013486536428, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: -0.114
+      objectReference: {fileID: 0}
+    - target: {fileID: 4000014246992142, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 1.146
+      objectReference: {fileID: 0}
+    - target: {fileID: 4000014246992142, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.12800002
+      objectReference: {fileID: 0}
+    - target: {fileID: 4000014246992142, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 3.728
+      objectReference: {fileID: 0}
+    - target: {fileID: 4000014246992142, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.37533277
+      objectReference: {fileID: 0}
+    - target: {fileID: 4000014246992142, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.9268902
+      objectReference: {fileID: 0}
+    - target: {fileID: 4000014246992142, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 135.91
       objectReference: {fileID: 0}
     - target: {fileID: 114000010284222892, guid: 23d25b2e2d4364dd4b92c52ef40cd36e, type: 3}
       propertyPath: isLocked
@@ -9747,7 +9771,7 @@ MonoBehaviour:
 
 
     Almost
-    all medkits are in locked cabinets that require general keys
+    all medkits are in locked cabinets that require silver keys
 
 
     Silver Keys

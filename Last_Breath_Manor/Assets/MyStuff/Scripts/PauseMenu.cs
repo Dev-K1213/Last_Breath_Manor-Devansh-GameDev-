@@ -18,13 +18,18 @@ public class PauseMenu : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Escape)){
+        // Block Escape key if hint or tutorial are open
+        if (IsInHintOrTutorial())
+            return;
 
-            if(isPaused){
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (isPaused)
+            {
                 ResumeGame();
             }
-            else{
-
+            else
+            {
                 PauseGame();
             }
         }
@@ -59,7 +64,11 @@ public class PauseMenu : MonoBehaviour
             canvasGroup.alpha = 1f;
             canvasGroup.interactable = true;
             canvasGroup.blocksRaycasts = true;
+
         }
+            pauseMenu.SetActive(false);
+            Tutorial.SetActive(false);
+            hint.SetActive(true);
     }
 
 
@@ -85,7 +94,13 @@ public class PauseMenu : MonoBehaviour
             canvasGroup.alpha = 1f;
             canvasGroup.interactable = true;
             canvasGroup.blocksRaycasts = true; 
+
+
         }
+
+            pauseMenu.SetActive(false);
+            Tutorial.SetActive(true);
+            hint.SetActive(false);
     }
 
     public void HideHint()
@@ -97,7 +112,9 @@ public class PauseMenu : MonoBehaviour
             canvasGroup.interactable = false;
             canvasGroup.blocksRaycasts = false;
         }
-        
+
+        Tutorial.SetActive(false);
+        hint.SetActive(false);
         pauseMenu.SetActive(true);
     }
 
@@ -112,6 +129,8 @@ public class PauseMenu : MonoBehaviour
             canvasGroup.blocksRaycasts = false;
         }
 
+        Tutorial.SetActive(false);
+        hint.SetActive(false);
         pauseMenu.SetActive(true);
     }
 
@@ -122,4 +141,14 @@ public class PauseMenu : MonoBehaviour
         Time.timeScale = 1;
         SceneManager.LoadScene("Main");
     }
+
+    private bool IsInHintOrTutorial()
+    {
+        CanvasGroup hintGroup = hint.GetComponent<CanvasGroup>();
+        CanvasGroup tutorialGroup = Tutorial.GetComponent<CanvasGroup>();
+
+        return (hintGroup != null && hintGroup.interactable) || (tutorialGroup != null && tutorialGroup.interactable);
+
+    }
+
 }
