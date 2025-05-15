@@ -7,3 +7,6 @@ How to play video
 
 Trailer and How I did this are in google drive
   https://drive.google.com/drive/folders/1_8SBGz-xzo_koAijE5iHpR1tniqqPeS5?usp=drive_link
+
+
+FIX PICKING UP BOOK AND USING ALL KEYS
